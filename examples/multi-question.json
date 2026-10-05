@@ -1,0 +1,14 @@
+{
+  "state": "My order arrived damaged. Can I get my money back today?",
+  "model": "jev-latest",
+  "questions": {
+    "refund_requested": {
+      "type": "noul",
+      "instructions": "Is the customer asking for a refund?"
+    },
+    "urgent": {
+      "type": "noul",
+      "instructions": "Does the customer express urgency?"
+    }
+  }
+}

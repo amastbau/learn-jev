@@ -1,0 +1,9 @@
+# Keep local credentials out of this learning repository.
+.env
+.env.*
+*.key
+jev-key
+
+# Local development files.
+.DS_Store
+__pycache__/

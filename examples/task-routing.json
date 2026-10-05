@@ -1,0 +1,35 @@
+{
+  "state": {
+    "task": "A Python project began failing tests after a dependency upgrade. Inspect the failures and changelog, find the cause, make the smallest safe fix, and verify it with targeted tests."
+  },
+  "model": "jev-latest",
+  "questions": {
+    "best_handler": {
+      "type": "choice",
+      "instructions": "Which primary handler is appropriate for `task`?",
+      "criteria": {
+        "tool_only": "A direct command or lookup can complete the task.",
+        "small_model": "A short, straightforward language task using supplied information.",
+        "large_model": "Multi-step investigation, debugging, synthesis, or weighing trade-offs is required."
+      }
+    },
+    "reasoning_complexity": {
+      "type": "score",
+      "instructions": "How much reasoning is needed to complete `task` correctly?",
+      "criteria": [
+        "Direct command or lookup",
+        "One straightforward step",
+        "Several dependent steps",
+        "Open-ended investigation with verification"
+      ]
+    },
+    "needs_tools": {
+      "type": "noul",
+      "instructions": "Does completing `task` require running commands or inspecting files?"
+    },
+    "needs_more_context": {
+      "type": "noul",
+      "instructions": "Does completing `task` require information beyond the task description?"
+    }
+  }
+}
