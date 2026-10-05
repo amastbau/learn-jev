@@ -321,11 +321,11 @@
         <h2 id="title-7">Should a task go to a <span class="accent">larger model?</span></h2>
         <p class="quote">“Tests began failing after a dependency upgrade. Inspect failures and the changelog, find the cause, make a safe fix, and verify it.”</p>
         <div class="cards">
-          <div class="card"><span class="tag">Choice</span><h3>Best handler?</h3><p>Tool only, small model, or large model.</p></div>
-          <div class="card"><span class="tag">Score</span><h3>Reasoning complexity?</h3><p>From direct lookup to open-ended investigation.</p></div>
-          <div class="card"><span class="tag">Nouls</span><h3>What else is needed?</h3><p>Tools? More context?</p></div>
+          <div class="card"><span class="tag">Choice</span><h3>Best handler?</h3><p>Large model · 1.00</p></div>
+          <div class="card"><span class="tag">Score</span><h3>Reasoning complexity?</h3><p>2.92 / 3 · open-ended investigation</p></div>
+          <div class="card"><span class="tag">Nouls</span><h3>What else is needed?</h3><p>Tools 0.98 · more context 0.97</p></div>
         </div>
-        <p class="small" style="margin-top:1.4rem">This is a template to test. We did not record an answer for this task. Compare results against labeled tasks before using them to route work.</p>
+        <p class="small" style="margin-top:1.4rem">Observed with Jev 1.13.0. A direct repository search chose tool_only (1.00). Test against labeled tasks before using these answers to route work.</p>
         <p class="source">See: <a href="../examples/task-routing.json">full request JSON</a> · <a href="https://docs.typesafe.ai/patterns/intent-routing">TypeSafe intent routing</a></p>
       </div>
     </section>

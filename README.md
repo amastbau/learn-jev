@@ -5,7 +5,7 @@ A short, hands-on introduction to TypeSafe AI's **Jev** model: send context as `
 ## Start here
 
 - [Guide](docs/guide.md) — the mental model, question types, API shape, and how to read answers.
-- [Experiments](docs/experiments.md) — requests we ran, their observed responses, and a larger-model routing template.
+- [Experiments](docs/experiments.md) — requests we ran, their observed responses, and a task-routing comparison.
 - [HTML presentation](presentation/index.html) — a standalone slide deck. Download or clone the repository and open the file in a browser; use the arrow keys to navigate.
 - [Example requests](examples/) — JSON bodies you can adapt for the [TypeSafe Playground](https://console.typesafe.ai/playground) or API.
 
@@ -32,6 +32,6 @@ For an API call, see TypeSafe's [quick start](https://docs.typesafe.ai/introduct
 
 ## Sources and scope
 
-These notes summarize our learning session on **October 5, 2026** and TypeSafe's [launch article](https://typesafe.ai/blog/introducing-system-one-models-and-jev), [API reference](https://docs.typesafe.ai/api), and [question guide](https://docs.typesafe.ai/primitives). The recorded outputs are observations from two example calls, not benchmarks or guarantees. TypeSafe's performance and calibration claims should be tested on your own workload.
+These notes summarize our learning session on **October 5, 2026** and TypeSafe's [launch article](https://typesafe.ai/blog/introducing-system-one-models-and-jev), [API reference](https://docs.typesafe.ai/api), and [question guide](https://docs.typesafe.ai/primitives). The recorded outputs are observations from four example calls, not benchmarks or guarantees. TypeSafe's performance and calibration claims should be tested on your own workload.
 
 Assisted-by: Codex

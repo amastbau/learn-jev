@@ -44,7 +44,14 @@ The observed response had `refund_requested = 0.98` and `urgent = 0.92`. Each nu
 
 ## 3. A harder test: route a task
 
-[`examples/task-routing.json`](../examples/task-routing.json) is a **template, not an observed result**. It asks which handler fits a debugging task, how much reasoning it needs, and whether tools or more context are required. Replace `state.task` with a different task and compare the answer distributions. Try both an easy task (`Split all my active windows`) and one that requires investigation.
+We sent [`examples/task-routing.json`](../examples/task-routing.json) to Jev. Its task was: “A Python project began failing tests after a dependency upgrade. Inspect the failures and changelog, find the cause, make the smallest safe fix, and verify it with targeted tests.” We then sent the same four questions with a simpler state: “In the current repository, list the Markdown files containing the exact text jev-latest.”
+
+| Task | Best handler (Choice) | Reasoning complexity (Score, 0–3) | Needs tools (Noul) | Needs more context (Noul) |
+| --- | --- | ---: | ---: | ---: |
+| Debug tests after a dependency upgrade | `large_model` (1.00) | 2.92 | 0.98 | 0.97 |
+| Find Markdown files containing `jev-latest` | `tool_only` (1.00) | 0.33 | 0.97 | 0.89 |
+
+The repository search still needs tools and access to the files, which explains its high scores for the last two questions. Those scores alone do not imply it needs a large model. Jev classified the task; it did not inspect the repository or fix any tests. These are observed outputs from one run of `jev-1.13.0`, not validated routing thresholds.
 
 The `best_handler` Choice gives a suggested route; the other questions expose useful factors behind that route. A real router should test these answers against labeled tasks and set its own thresholds. See TypeSafe's [intent-routing pattern](https://docs.typesafe.ai/patterns/intent-routing) and [confidence guidance](https://docs.typesafe.ai/confidence).
 
