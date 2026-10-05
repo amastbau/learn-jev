@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A standalone presentation about TypeSafe AI's Jev model, typed questions, and task routing.">
+  <title>Learn Jev — typed decisions from context</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111e;
+      --panel: #102238;
+      --panel-soft: #0d1b2d;
+      --line: #294159;
+      --text: #f0f6fb;
+      --muted: #a9bed1;
+      --cyan: #6ce6e1;
+      --lime: #c9f27e;
+      --amber: #ffd48a;
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 78% 12%, rgba(71, 182, 190, .19), transparent 27rem),
+        radial-gradient(circle at 12% 78%, rgba(145, 184, 80, .10), transparent 30rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: .24;
+      background-image: linear-gradient(rgba(180, 220, 240, .08) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(180, 220, 240, .08) 1px, transparent 1px);
+      background-size: 42px 42px;
+      pointer-events: none;
+    }
+    a { color: var(--cyan); text-underline-offset: .2em; }
+    a:hover { color: var(--lime); }
+    button { font: inherit; }
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      height: 4px;
+      width: 100%;
+      background: rgba(255, 255, 255, .08);
+    }
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 11.11%;
+      background: linear-gradient(90deg, var(--cyan), var(--lime));
+      transition: width .25s ease;
+    }
+    .topbar, .controls, .footbar {
+      width: min(1200px, calc(100% - 3rem));
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .topbar { min-height: 74px; padding-top: 5px; }
+    .brand { font-size: .86rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    .brand span { color: var(--cyan); }
+    .counter { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .9rem; }
+    main { width: min(1200px, calc(100% - 3rem)); margin: 0 auto; }
+    .slide {
+      display: none;
+      min-height: calc(100dvh - 154px);
+      padding: clamp(1.2rem, 3vw, 3.2rem) 0;
+      align-items: center;
+      animation: rise .28s ease both;
+    }
+    .slide.active { display: grid; }
+    .no-js .slide { display: grid; min-height: auto; border-bottom: 1px solid var(--line); }
+    .slide:focus { outline: none; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .slide-content { width: 100%; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      color: var(--cyan);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+      margin-bottom: 1.1rem;
+    }
+    .eyebrow::before { content: ""; width: 24px; height: 2px; background: currentColor; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(3.2rem, 6.2vw, 5.4rem); line-height: .99; letter-spacing: -.07em; margin-bottom: 1.5rem; }
+    h2 { font-size: clamp(2.4rem, 5vw, 4.7rem); line-height: 1.05; letter-spacing: -.055em; margin-bottom: 1.3rem; }
+    h3 { font-size: 1.15rem; margin-bottom: .55rem; }
+    .lead { color: var(--muted); font-size: clamp(1.12rem, 1.9vw, 1.42rem); max-width: 48rem; }
+    .small { font-size: .91rem; color: var(--muted); }
+    .hero-grid, .split { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(1.5rem, 4vw, 4.5rem); align-items: center; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .cards.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card, .code-card, .flow {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(155deg, rgba(21, 46, 71, .93), rgba(9, 23, 40, .96));
+      box-shadow: 0 20px 65px rgba(0, 0, 0, .16);
+    }
+    .card { padding: clamp(1.1rem, 2vw, 1.6rem); }
+    .card p:last-child { margin-bottom: 0; }
+    .card .tag { color: var(--lime); font: 700 .78rem ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .05em; text-transform: uppercase; }
+    .card strong { color: white; }
+    .code-card { padding: 1.3rem 1.5rem; overflow: auto; }
+    .code-label { color: var(--cyan); text-transform: uppercase; letter-spacing: .14em; font-size: .72rem; font-weight: 800; margin-bottom: .85rem; }
+    pre, code, .mono { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; }
+    pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: clamp(.78rem, 1.3vw, .98rem); line-height: 1.65; color: #e3f4ff; }
+    code:not(pre code) { background: rgba(108, 230, 225, .1); color: var(--cyan); padding: .12em .35em; border-radius: 6px; }
+    .accent { color: var(--cyan); }
+    .accent-lime { color: var(--lime); }
+    .flow { padding: clamp(1.2rem, 2.8vw, 2rem); display: grid; gap: 1rem; }
+    .flow-step { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border: 1px solid var(--line); border-radius: 14px; padding: .85rem 1rem; background: rgba(4, 15, 28, .45); }
+    .flow-step span:last-child { color: var(--lime); font-weight: 800; }
+    .flow-arrow { text-align: center; color: var(--cyan); font-size: 1.6rem; line-height: .8; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.7rem; }
+    .pill { border: 1px solid var(--line); border-radius: 99px; padding: .45rem .85rem; color: var(--muted); background: rgba(255,255,255,.03); font-size: .9rem; }
+    .number { font-size: clamp(4rem, 11vw, 8rem); line-height: 1; letter-spacing: -.09em; font-weight: 850; color: var(--lime); font-variant-numeric: tabular-nums; }
+    .metric-label { color: var(--muted); font-size: .92rem; }
+    .meter { position: relative; height: 13px; margin: 1.5rem 0 .45rem; background: #294159; border-radius: 50px; overflow: hidden; }
+    .meter::before { content: ""; display: block; width: 93%; height: 100%; background: linear-gradient(90deg, #50819c, var(--cyan), var(--lime)); border-radius: inherit; }
+    .scale { display: flex; justify-content: space-between; color: var(--muted); font: .78rem ui-monospace, monospace; }
+    .quote { border-left: 3px solid var(--cyan); padding: .5rem 0 .5rem 1.2rem; color: white; font-size: clamp(1.2rem, 2vw, 1.7rem); }
+    .result { color: var(--lime); font-size: clamp(3rem, 6vw, 5.3rem); font-weight: 850; letter-spacing: -.06em; line-height: 1; }
+    .table { width: 100%; border-collapse: collapse; margin-top: 1.7rem; overflow: hidden; }
+    .table th, .table td { padding: 1rem 1.1rem; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .table th { color: var(--cyan); font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; }
+    .table tr:last-child td { border-bottom: 0; }
+    .source { margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+    .source a { white-space: nowrap; }
+    .controls { min-height: 58px; gap: .75rem; }
+    .control-buttons { display: flex; gap: .6rem; }
+    .controls button {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: .55rem .9rem;
+      min-width: 6.8rem;
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .controls button:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
+    .controls button:focus-visible, a:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+    .controls button:disabled { opacity: .35; cursor: not-allowed; }
+    .footbar { min-height: 22px; color: #7893aa; font-size: .75rem; padding-bottom: .65rem; }
+    .no-js .controls { display: none; }
+    @media (max-width: 850px) {
+      .hero-grid, .split { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .cards.two { grid-template-columns: 1fr; }
+      .slide { min-height: calc(100dvh - 160px); }
+      .topbar, .controls, .footbar, main { width: min(100% - 2rem, 1200px); }
+      .controls .small { display: none; }
+      .table th, .table td { padding: .7rem .5rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+    @media print {
+      :root { color-scheme: light; }
+      body { background: white; color: #102238; }
+      body::before, .progress, .topbar, .controls, .footbar { display: none !important; }
+      main { width: 100%; }
+      .slide, .slide.active { display: block !important; min-height: 100vh; padding: 2rem; break-after: page; animation: none; }
+      .card, .code-card, .flow { background: #f2f7fa; color: #102238; box-shadow: none; border-color: #b8c7d0; }
+      .lead, .small, .metric-label, .scale { color: #344a5d; }
+      pre, .quote, .card strong { color: #102238; }
+      a { color: #006b75; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progress-fill"></span></div>
+  <header class="topbar">
+    <div class="brand">TypeSafe AI <span>/</span> Learn Jev</div>
+    <div class="counter" id="counter" aria-live="polite">1 / 9</div>
+  </header>
+
+  <main id="deck">
+    <section class="slide active" id="slide-1" tabindex="-1" aria-labelledby="title-1">
+      <div class="slide-content hero-grid">
+        <div>
+          <div class="eyebrow">What we learned · 2026</div>
+          <h1 id="title-1">Ask a question.<br><span class="accent">Get a typed decision.</span></h1>
+          <p class="lead">Jev takes context and returns probabilities, choices, or scores that software can use directly.</p>
+          <div class="pill-row"><span class="pill">Noul</span><span class="pill">Choice</span><span class="pill">Score</span></div>
+        </div>
+        <div class="flow" aria-label="Jev request flow">
+          <div class="flow-step"><span>State</span><span>context</span></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span>Typed questions</span><span>judgments</span></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span>Structured answers</span><span>code-ready</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-2" tabindex="-1" aria-labelledby="title-2">
+      <div class="slide-content">
+        <div class="eyebrow">01 · The request</div>
+        <h2 id="title-2">One state.<br><span class="accent">Several questions.</span></h2>
+        <div class="split">
+          <div class="code-card">
+            <div class="code-label">Request body</div>
+            <pre>{
+  "state": "My order arrived damaged.
+            Can I get my money back today?",
+  "model": "jev-latest",
+  "questions": {
+    "refund_requested": {
+      "type": "noul",
+      "instructions": "Is the customer asking for a refund?"
+    },
+    "urgent": {
+      "type": "noul",
+      "instructions": "Does the customer express urgency?"
+    }
+  }
+}</pre>
+          </div>
+          <div>
+            <div class="card"><span class="tag">State</span><h3>The evidence</h3><p>Text or structured JSON describing what Jev should evaluate.</p></div>
+            <div class="card" style="margin-top:1rem"><span class="tag">Instructions</span><h3>The judgment</h3><p>Each named question asks one specific thing about that same state.</p></div>
+          </div>
+        </div>
+        <p class="source">Source: <a href="https://docs.typesafe.ai/api">TypeSafe API reference</a></p>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-3" tabindex="-1" aria-labelledby="title-3">
+      <div class="slide-content split">
+        <div>
+          <div class="eyebrow">02 · Noul</div>
+          <h2 id="title-3">A yes/no question returns a <span class="accent">probability of yes.</span></h2>
+          <p class="lead">“Is the customer asking for a refund?” is evaluated against the message in <code>state</code>.</p>
+          <p class="small">A Noul value is about whether the proposition is true. It is not a measure of intensity, and Noul has no separate confidence field.</p>
+        </div>
+        <div class="card">
+          <div class="metric-label mono">answers.refund_requested.noul</div>
+          <div class="number">0.93</div>
+          <p class="lead" style="margin-bottom:0">Illustration: an estimated 93% probability of <strong>yes</strong> for this state and question.</p>
+          <div class="meter" aria-hidden="true"></div>
+          <div class="scale"><span>0 · no</span><span>0.5 · uncertain</span><span>1 · yes</span></div>
+        </div>
+        <p class="source">Source: <a href="https://docs.typesafe.ai/primitives/noul">TypeSafe Noul guide</a></p>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-4" tabindex="-1" aria-labelledby="title-4">
+      <div class="slide-content">
+        <div class="eyebrow">03 · Parallel judgments</div>
+        <h2 id="title-4">Split combined questions into <span class="accent">clear parts.</span></h2>
+        <p class="quote">“My order arrived damaged. Can I get my money back today?”</p>
+        <div class="cards two">
+          <div class="card"><span class="tag">Observed · Jev 1.13.0</span><h3>Refund requested?</h3><div class="result">0.98</div><p class="small">Probability of yes</p></div>
+          <div class="card"><span class="tag">Observed · Jev 1.13.0</span><h3>Urgent?</h3><div class="result">0.92</div><p class="small">Probability of yes</p></div>
+        </div>
+        <p class="lead" style="margin-top:1.7rem">Both answers use the same state. Each number retains a clear meaning.</p>
+        <p class="source">Source: <a href="https://docs.typesafe.ai/primitives">TypeSafe primitives guide</a></p>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-5" tabindex="-1" aria-labelledby="title-5">
+      <div class="slide-content">
+        <div class="eyebrow">04 · The other primitives</div>
+        <h2 id="title-5">Choose the shape of the answer <span class="accent">before you ask.</span></h2>
+        <table class="table">
+          <thead><tr><th>Type</th><th>Use it for</th><th>Returns</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Noul</strong></td><td>Is this true?</td><td>A yes probability from 0 to 1</td></tr>
+            <tr><td><strong>Choice</strong></td><td>Which predefined option fits?</td><td>Selected option, all option probabilities, confidence</td></tr>
+            <tr><td><strong>Score</strong></td><td>Where does this sit on ordered levels?</td><td>Weighted score, level probabilities, legend, confidence</td></tr>
+          </tbody>
+        </table>
+        <div class="cards two">
+          <div class="card"><span class="tag">Choice example</span><p><strong>Best handler?</strong><br>tool only · small model · large model</p></div>
+          <div class="card"><span class="tag">Score example</span><p><strong>Reasoning complexity?</strong><br>lookup · one step · several steps · investigation</p></div>
+        </div>
+        <p class="source">Source: <a href="https://docs.typesafe.ai/primitives">TypeSafe primitives guide</a></p>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-6" tabindex="-1" aria-labelledby="title-6">
+      <div class="slide-content split">
+        <div>
+          <div class="eyebrow">05 · Our desktop test</div>
+          <h2 id="title-6">Can Jev recognize a <span class="accent">local action?</span></h2>
+          <p class="quote">“Split all my active winodws”</p>
+          <p class="lead">We asked whether this text requests an action in the user's local desktop environment.</p>
+          <p class="small">The original typo is preserved. This was classification; the request did not move any windows.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Observed · Jev 1.13.0</span>
+          <h3>Local desktop action?</h3>
+          <div class="number">0.95</div>
+          <p class="lead" style="margin-bottom:0">Estimated probability of yes</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-7" tabindex="-1" aria-labelledby="title-7">
+      <div class="slide-content">
+        <div class="eyebrow">06 · A harder experiment</div>
+        <h2 id="title-7">Should a task go to a <span class="accent">larger model?</span></h2>
+        <p class="quote">“Tests began failing after a dependency upgrade. Inspect failures and the changelog, find the cause, make a safe fix, and verify it.”</p>
+        <div class="cards">
+          <div class="card"><span class="tag">Choice</span><h3>Best handler?</h3><p>Large model · 1.00</p></div>
+          <div class="card"><span class="tag">Score</span><h3>Reasoning complexity?</h3><p>2.92 / 3 · open-ended investigation</p></div>
+          <div class="card"><span class="tag">Nouls</span><h3>What else is needed?</h3><p>Tools 0.98 · more context 0.97</p></div>
+        </div>
+        <p class="small" style="margin-top:1.4rem">Observed with Jev 1.13.0. A direct repository search chose tool_only (1.00). Test against labeled tasks before using these answers to route work.</p>
+        <p class="source">See: <a href="../examples/task-routing.json">full request JSON</a> · <a href="https://docs.typesafe.ai/patterns/intent-routing">TypeSafe intent routing</a></p>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-8" tabindex="-1" aria-labelledby="title-8">
+      <div class="slide-content split">
+        <div>
+          <div class="eyebrow">07 · Try it yourself</div>
+          <h2 id="title-8">Start in the <span class="accent">Playground.</span><br>Then use the API.</h2>
+          <p class="lead">Use the same request shape in both places. Replace the state with a task of your own and keep the questions narrow.</p>
+          <div class="pill-row"><a class="pill" href="https://console.typesafe.ai/playground">Open Playground ↗</a><a class="pill" href="https://docs.typesafe.ai/introduction/quickstart">Read quick start ↗</a></div>
+        </div>
+        <div class="code-card">
+          <div class="code-label">HTTP API</div>
+          <pre>POST /v1/systemone
+Authorization: Bearer &lt;local API key&gt;
+Content-Type: application/json
+
+{
+  "state": "...",
+  "model": "jev-latest",
+  "questions": { "...": { "type": "noul", "instructions": "..." } }
+}</pre>
+          <p class="small" style="margin:1rem 0 0">Keep credentials out of request bodies and this repository.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" id="slide-9" tabindex="-1" aria-labelledby="title-9">
+      <div class="slide-content">
+        <div class="eyebrow">08 · What to remember</div>
+        <h2 id="title-9">Typed answers make routing easier.<br><span class="accent">They still need evaluation.</span></h2>
+        <div class="cards">
+          <div class="card"><span class="tag">01</span><h3>One clear judgment</h3><p>Separate independent conditions so each answer is meaningful.</p></div>
+          <div class="card"><span class="tag">02</span><h3>Probability ≠ proof</h3><p>Test Jev's estimates on your own tasks before setting action thresholds.</p></div>
+          <div class="card"><span class="tag">03</span><h3>Code stays in control</h3><p>Use Jev to choose among defined options; use tools and other models for the work they fit.</p></div>
+        </div>
+        <p class="source">Sources: <a href="https://docs.typesafe.ai/introduction">Introduction</a> · <a href="https://docs.typesafe.ai/api">API reference</a> · <a href="https://docs.typesafe.ai/primitives">Primitives</a> · <a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">Launch article</a></p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="Slide navigation">
+    <span class="small">← → keys · Home / End · Space</span>
+    <div class="control-buttons"><button type="button" id="previous" aria-label="Previous slide">← Previous</button><button type="button" id="next" aria-label="Next slide">Next →</button></div>
+  </nav>
+  <footer class="footbar"><span>Learn Jev · October 5, 2026</span><span>Assisted-by: Codex</span></footer>
+
+  <script>
+    document.documentElement.classList.remove('no-js');
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const counter = document.getElementById('counter');
+    const progress = document.getElementById('progress-fill');
+    const previous = document.getElementById('previous');
+    const next = document.getElementById('next');
+    let current = 0;
+
+    function showSlide(index, moveFocus = false) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides.forEach((slide, position) => {
+        const active = position === current;
+        slide.classList.toggle('active', active);
+        slide.setAttribute('aria-hidden', String(!active));
+      });
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      previous.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      history.replaceState(null, '', `#slide-${current + 1}`);
+      window.scrollTo(0, 0);
+      if (moveFocus) slides[current].focus({ preventScroll: true });
+    }
+
+    previous.addEventListener('click', () => showSlide(current - 1, true));
+    next.addEventListener('click', () => showSlide(current + 1, true));
+    document.addEventListener('keydown', (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); showSlide(current + 1, true); }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); showSlide(current - 1, true); }
+      if (event.key === 'Home') { event.preventDefault(); showSlide(0, true); }
+      if (event.key === 'End') { event.preventDefault(); showSlide(slides.length - 1, true); }
+    });
+    window.addEventListener('hashchange', () => {
+      const number = Number(location.hash.replace('#slide-', ''));
+      if (Number.isInteger(number) && number >= 1 && number <= slides.length) showSlide(number - 1);
+    });
+    const initial = Number(location.hash.replace('#slide-', ''));
+    showSlide(Number.isInteger(initial) && initial >= 1 && initial <= slides.length ? initial - 1 : 0);
+  </script>
+</body>
+</html>

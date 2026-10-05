@@ -1,0 +1,10 @@
+{
+  "state": "Split all my active winodws",
+  "model": "jev-latest",
+  "questions": {
+    "is_local_command": {
+      "type": "noul",
+      "instructions": "Does this instruction ask for an action to be performed in the user's local desktop environment?"
+    }
+  }
+}
